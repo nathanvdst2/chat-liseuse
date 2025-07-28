@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Liseuse</title>
+    <title>Chat Liseuse - Synchronisé</title>
     <style>
         * {
             margin: 0;
@@ -27,6 +27,22 @@
             text-align: center;
             font-size: 18px;
             font-weight: bold;
+        }
+        
+        .status-indicator {
+            background-color: #34495e;
+            color: white;
+            padding: 8px;
+            text-align: center;
+            font-size: 14px;
+        }
+        
+        .status-indicator.connected {
+            background-color: #27ae60;
+        }
+        
+        .status-indicator.error {
+            background-color: #e74c3c;
         }
         
         .chat-container {
@@ -74,6 +90,12 @@
             max-width: 80%;
             word-wrap: break-word;
             line-height: 1.4;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .message.user1 {
@@ -156,6 +178,15 @@
             color: #7f8c8d;
         }
         
+        .config-needed {
+            background-color: #f39c12;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        
         @media (max-width: 600px) {
             .message {
                 max-width: 90%;
@@ -173,7 +204,11 @@
 </head>
 <body>
     <div class="header">
-        💕 Chat Liseuse - Restez connectés 💕
+        💕 Chat Liseuse - Synchronisé 💕
+    </div>
+    
+    <div class="status-indicator" id="connectionStatus">
+        🔄 Connexion en cours...
     </div>
     
     <div class="chat-container">
@@ -188,7 +223,7 @@
         </div>
         
         <div class="messages" id="messages">
-            <div class="status">Choisissez votre identité pour commencer à chatter</div>
+            <div class="status">Connexion à Firebase en cours...</div>
         </div>
         
         <div class="input-container">
@@ -197,82 +232,148 @@
         </div>
     </div>
 
-    <script>
+    <!-- Firebase SDK -->
+    <script type="module">
+        // ⚠️ IMPORTANT: REMPLACEZ cette configuration par la vôtre !
+        const firebaseConfig = {
+            // COLLEZ ICI VOTRE CONFIGURATION FIREBASE
+            apiKey: "VOTRE_API_KEY",
+            authDomain: "VOTRE_PROJET.firebaseapp.com",
+            projectId: "VOTRE_PROJET_ID",
+            storageBucket: "VOTRE_PROJET.appspot.com",
+            messagingSenderId: "VOTRE_SENDER_ID",
+            appId: "VOTRE_APP_ID"
+        };
+
+        // Vérifier si la configuration est complète
+        if (firebaseConfig.apiKey === "VOTRE_API_KEY") {
+            document.getElementById('messages').innerHTML = `
+                <div class="config-needed">
+                    <h3>⚠️ Configuration Firebase requise</h3>
+                    <p>Vous devez remplacer la configuration Firebase dans le code.</p>
+                    <p>Suivez les étapes du mode d'emploi !</p>
+                </div>
+            `;
+            document.getElementById('connectionStatus').textContent = "❌ Configuration Firebase manquante";
+            document.getElementById('connectionStatus').className = "status-indicator error";
+            return;
+        }
+
+        // Import Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        // Initialize Firebase
+        let app, db;
         let currentUser = '';
-        let messages = [];
-        
-        // Charger les données sauvegardées
-        function loadData() {
-            const savedMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
+        let unsubscribe = null;
+
+        try {
+            app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            
+            document.getElementById('connectionStatus').textContent = "✅ Connecté à Firebase";
+            document.getElementById('connectionStatus').className = "status-indicator connected";
+            
+            // Charger l'utilisateur sauvegardé
             const savedUser = localStorage.getItem('currentUser') || '';
-            
-            messages = savedMessages;
-            currentUser = savedUser;
-            
-            if (currentUser) {
-                document.getElementById('userSelect').value = currentUser;
+            if (savedUser) {
+                document.getElementById('userSelect').value = savedUser;
+                currentUser = savedUser;
                 enableChat();
+                startListening();
+            } else {
+                document.getElementById('messages').innerHTML = '<div class="status">Choisissez votre identité pour commencer</div>';
             }
-            
-            displayMessages();
+
+        } catch (error) {
+            console.error("Erreur Firebase:", error);
+            document.getElementById('connectionStatus').textContent = "❌ Erreur de connexion Firebase";
+            document.getElementById('connectionStatus').className = "status-indicator error";
+            document.getElementById('messages').innerHTML = `
+                <div class="config-needed">
+                    <h3>❌ Erreur Firebase</h3>
+                    <p>Vérifiez votre configuration Firebase.</p>
+                    <p>Erreur: ${error.message}</p>
+                </div>
+            `;
         }
-        
-        // Sauvegarder les données
-        function saveData() {
-            localStorage.setItem('chatMessages', JSON.stringify(messages));
-            localStorage.setItem('currentUser', currentUser);
-        }
-        
+
         // Gérer le changement d'utilisateur
         document.getElementById('userSelect').addEventListener('change', function() {
             currentUser = this.value;
             if (currentUser) {
+                localStorage.setItem('currentUser', currentUser);
                 enableChat();
-                saveData();
+                startListening();
             } else {
                 disableChat();
+                if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                }
             }
         });
-        
+
         // Activer le chat
         function enableChat() {
             document.getElementById('messageInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
             document.getElementById('messageInput').focus();
         }
-        
+
         // Désactiver le chat
         function disableChat() {
             document.getElementById('messageInput').disabled = true;
             document.getElementById('sendBtn').disabled = true;
         }
-        
+
+        // Écouter les messages en temps réel
+        function startListening() {
+            if (unsubscribe) {
+                unsubscribe();
+            }
+
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('timestamp', 'asc'));
+            
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
+                });
+                displayMessages(messages);
+            }, (error) => {
+                console.error("Erreur lors de l'écoute:", error);
+                document.getElementById('connectionStatus').textContent = "⚠️ Problème de synchronisation";
+                document.getElementById('connectionStatus').className = "status-indicator error";
+            });
+        }
+
         // Envoyer un message
-        function sendMessage() {
+        window.sendMessage = async function() {
             const messageInput = document.getElementById('messageInput');
             const messageText = messageInput.value.trim();
             
-            if (messageText && currentUser) {
-                const message = {
-                    id: Date.now(),
-                    user: currentUser,
-                    text: messageText,
-                    timestamp: new Date().toLocaleString('fr-FR')
-                };
-                
-                messages.push(message);
-                messageInput.value = '';
-                displayMessages();
-                saveData();
-                
-                // Faire défiler vers le bas
-                const messagesContainer = document.getElementById('messages');
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            if (messageText && currentUser && db) {
+                try {
+                    await addDoc(collection(db, 'messages'), {
+                        user: currentUser,
+                        text: messageText,
+                        timestamp: new Date()
+                    });
+                    
+                    messageInput.value = '';
+                    
+                } catch (error) {
+                    console.error("Erreur lors de l'envoi:", error);
+                    alert("Erreur lors de l'envoi du message. Vérifiez votre connexion.");
+                }
             }
-        }
-        
+        };
+
         // Afficher les messages
-        function displayMessages() {
+        function displayMessages(messages) {
             const messagesContainer = document.getElementById('messages');
             
             if (messages.length === 0) {
@@ -280,46 +381,49 @@
                 return;
             }
             
-            messagesContainer.innerHTML = messages.map(message => `
-                <div class="message ${message.user}">
-                    <div>${message.text}</div>
-                    <div class="message-info">${message.timestamp}</div>
-                </div>
-            `).join('');
+            messagesContainer.innerHTML = messages.map(message => {
+                const date = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                return `
+                    <div class="message ${message.user}">
+                        <div>${message.text}</div>
+                        <div class="message-info">${date.toLocaleString('fr-FR')}</div>
+                    </div>
+                `;
+            }).join('');
             
             // Auto-scroll vers le bas
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-        
+
         // Effacer tous les messages
-        function clearAllMessages() {
-            if (confirm('Êtes-vous sûr de vouloir effacer tous les messages ?')) {
-                messages = [];
-                localStorage.removeItem('chatMessages');
-                displayMessages();
+        window.clearAllMessages = async function() {
+            if (!db) return;
+            
+            if (confirm('Êtes-vous sûr de vouloir effacer tous les messages pour vous deux ?')) {
+                try {
+                    const messagesRef = collection(db, 'messages');
+                    const snapshot = await getDocs(messagesRef);
+                    
+                    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deletePromises);
+                    
+                } catch (error) {
+                    console.error("Erreur lors de la suppression:", error);
+                    alert("Erreur lors de la suppression. Vérifiez votre connexion.");
+                }
             }
-        }
-        
+        };
+
         // Gérer la touche Entrée
         document.getElementById('messageInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
-        
-        // Actualiser les messages toutes les 5 secondes
-        setInterval(function() {
-            if (currentUser) {
-                const savedMessages = JSON.parse(localStorage.getItem('chatMessages') || '[]');
-                if (JSON.stringify(savedMessages) !== JSON.stringify(messages)) {
-                    messages = savedMessages;
-                    displayMessages();
-                }
-            }
-        }, 5000);
-        
-        // Charger les données au démarrage
-        loadData();
+
+        // Import getDocs pour la fonction de suppression
+        import { getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+        window.getDocs = getDocs;
     </script>
 </body>
 </html>
