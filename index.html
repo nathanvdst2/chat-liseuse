@@ -118,6 +118,13 @@
             margin-top: 5px;
         }
         
+        .message-sender {
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        
         .input-container {
             padding: 20px;
             background-color: #ecf0f1;
@@ -216,8 +223,8 @@
             <label for="userSelect">Je suis :</label>
             <select id="userSelect">
                 <option value="">Choisir...</option>
-                <option value="user1">Personne 1</option>
-                <option value="user2">Personne 2</option>
+                <option value="user1">Yosra</option>
+                <option value="user2">Nathan</option>
             </select>
             <button class="clear-btn" onclick="clearAllMessages()">Effacer tout</button>
         </div>
@@ -377,8 +384,10 @@
             
             messagesContainer.innerHTML = messages.map(message => {
                 const date = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                const userName = message.user === 'user1' ? 'Yosra' : 'Nathan';
                 return `
                     <div class="message ${message.user}">
+                        <div class="message-sender">${userName}</div>
                         <div>${message.text}</div>
                         <div class="message-info">${date.toLocaleString('fr-FR')}</div>
                     </div>
