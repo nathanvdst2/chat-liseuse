@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Liseuse - Synchronisé</title>
+    <title>Chat Liseuse - Compatible</title>
     <style>
         * {
             margin: 0;
@@ -15,233 +15,243 @@
             font-family: 'Times New Roman', serif;
             background-color: #f5f5dc;
             color: #333;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            padding: 10px;
+            line-height: 1.4;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 2px solid #333;
+            padding: 20px;
         }
         
         .header {
+            text-align: center;
             background-color: #2c3e50;
             color: white;
             padding: 15px;
-            text-align: center;
+            margin: -20px -20px 20px -20px;
             font-size: 18px;
             font-weight: bold;
         }
         
-        .status-indicator {
+        .status {
             background-color: #34495e;
             color: white;
-            padding: 8px;
+            padding: 10px;
             text-align: center;
+            margin-bottom: 20px;
             font-size: 14px;
         }
         
-        .status-indicator.connected {
-            background-color: #27ae60;
-        }
-        
-        .status-indicator.error {
-            background-color: #e74c3c;
-        }
-        
-        .chat-container {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            max-width: 100%;
-            margin: 0 auto;
-            background: white;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-        }
+        .status.connected { background-color: #27ae60; }
+        .status.error { background-color: #e74c3c; }
+        .status.fallback { background-color: #f39c12; }
         
         .user-selection {
-            padding: 20px;
-            text-align: center;
             background-color: #ecf0f1;
-            border-bottom: 2px solid #bdc3c7;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #bdc3c7;
+            text-align: center;
         }
         
         .user-selection label {
             font-size: 16px;
             margin-right: 10px;
+            font-weight: bold;
         }
         
         .user-selection select {
-            padding: 8px 15px;
+            padding: 8px;
             font-size: 16px;
-            border: 2px solid #3498db;
-            border-radius: 5px;
-            background: white;
+            border: 1px solid #333;
         }
         
         .messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
+            border: 2px solid #333;
             min-height: 300px;
-            max-height: 60vh;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 15px;
+            margin-bottom: 20px;
+            background-color: #fafafa;
         }
         
         .message {
             margin-bottom: 15px;
-            padding: 12px 15px;
-            border-radius: 10px;
-            max-width: 80%;
-            word-wrap: break-word;
-            line-height: 1.4;
-            animation: fadeIn 0.3s ease-in;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            padding: 10px;
+            border: 1px solid #ddd;
+            background-color: white;
         }
         
         .message.user1 {
-            background-color: #3498db;
-            color: white;
-            margin-left: auto;
-            text-align: right;
+            border-left: 4px solid #3498db;
+            margin-left: 20px;
         }
         
         .message.user2 {
-            background-color: #e74c3c;
-            color: white;
-            margin-right: auto;
-            text-align: left;
+            border-left: 4px solid #e74c3c;
+            margin-right: 20px;
         }
         
-        .message-info {
-            font-size: 12px;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        
-        .message-sender {
-            font-size: 12px;
+        .message-header {
             font-weight: bold;
-            opacity: 0.9;
-            margin-bottom: 3px;
+            margin-bottom: 5px;
+            font-size: 14px;
         }
         
-        .input-container {
-            padding: 20px;
+        .message-text {
+            margin-bottom: 5px;
+        }
+        
+        .message-time {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+        }
+        
+        .input-area {
             background-color: #ecf0f1;
-            border-top: 2px solid #bdc3c7;
-            display: flex;
-            gap: 10px;
+            padding: 15px;
+            border: 1px solid #bdc3c7;
         }
         
-        .message-input {
-            flex: 1;
-            padding: 12px 15px;
-            font-size: 16px;
-            border: 2px solid #3498db;
-            border-radius: 25px;
-            outline: none;
-            background: white;
+        .input-row {
+            margin-bottom: 10px;
         }
         
-        .send-btn {
-            padding: 12px 25px;
+        .input-row input[type="text"] {
+            width: 100%;
+            padding: 10px;
             font-size: 16px;
+            border: 1px solid #333;
+        }
+        
+        .button-row {
+            text-align: center;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            border: 1px solid #333;
             background-color: #27ae60;
             color: white;
-            border: none;
-            border-radius: 25px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            margin: 0 5px;
         }
         
-        .send-btn:hover {
+        .btn:hover {
             background-color: #229954;
         }
         
-        .send-btn:disabled {
+        .btn.danger {
+            background-color: #e74c3c;
+        }
+        
+        .btn.danger:hover {
+            background-color: #c0392b;
+        }
+        
+        .btn:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
         }
         
-        .clear-btn {
-            padding: 8px 15px;
+        .manual-sync {
+            background-color: #e8f4fd;
+            border: 1px solid #3498db;
+            padding: 15px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .manual-sync button {
+            margin: 5px;
+        }
+        
+        .help {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            padding: 15px;
+            margin-bottom: 20px;
             font-size: 14px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 15px;
-            cursor: pointer;
-            margin-left: 10px;
         }
         
-        .clear-btn:hover {
-            background-color: #c0392b;
-        }
-        
-        .status {
-            text-align: center;
-            padding: 10px;
-            font-style: italic;
-            color: #7f8c8d;
-        }
-        
-        .config-needed {
-            background-color: #f39c12;
-            color: white;
-            padding: 20px;
-            text-align: center;
-            margin: 20px;
-            border-radius: 10px;
-        }
-        
-        @media (max-width: 600px) {
-            .message {
-                max-width: 90%;
-            }
-            
-            .input-container {
-                flex-direction: column;
-            }
-            
-            .send-btn {
-                align-self: stretch;
-            }
+        .help h3 {
+            margin-bottom: 10px;
+            color: #856404;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        💕 Chat Liseuse - Synchronisé 💕
-    </div>
-    
-    <div class="status-indicator" id="connectionStatus">
-        🔄 Connexion en cours...
-    </div>
-    
-    <div class="chat-container">
+    <div class="container">
+        <div class="header">
+            💕 Chat Liseuse - Mode Compatible 💕
+        </div>
+        
+        <div class="status" id="status">
+            🔄 Vérification de la compatibilité...
+        </div>
+        
+        <div class="help">
+            <h3>📚 Mode Liseuse Activé</h3>
+            <p><strong>Si vous êtes sur liseuse :</strong> Utilisez la synchronisation manuelle ci-dessous</p>
+            <p><strong>Si vous êtes sur ordinateur/tablette :</strong> La synchronisation automatique devrait fonctionner</p>
+        </div>
+        
+        <div class="manual-sync" id="manualSync" style="display: none;">
+            <h3>🔄 Synchronisation Manuelle</h3>
+            <p>Cliquez pour actualiser les messages</p>
+            <button class="btn" onclick="manualRefresh()">⟳ Actualiser</button>
+            <button class="btn" onclick="checkConnection()">🔍 Test Connexion</button>
+        </div>
+        
         <div class="user-selection">
             <label for="userSelect">Je suis :</label>
-            <select id="userSelect">
+            <select id="userSelect" onchange="changeUser()">
                 <option value="">Choisir...</option>
                 <option value="user1">Yosra</option>
                 <option value="user2">Nathan</option>
             </select>
-            <button class="clear-btn" onclick="clearAllMessages()">Effacer tout</button>
+            <button class="btn danger" onclick="clearMessages()" style="margin-left: 20px;">🗑️ Effacer</button>
         </div>
         
         <div class="messages" id="messages">
-            <div class="status">Connexion à Firebase en cours...</div>
+            <div style="text-align: center; color: #666; font-style: italic;">
+                Choisissez votre identité pour commencer
+            </div>
         </div>
         
-        <div class="input-container">
-            <input type="text" class="message-input" id="messageInput" placeholder="Tapez votre message..." disabled>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>Envoyer</button>
+        <div class="input-area">
+            <div class="input-row">
+                <input type="text" id="messageInput" placeholder="Tapez votre message ici..." disabled>
+            </div>
+            <div class="button-row">
+                <button class="btn" id="sendBtn" onclick="sendMessage()" disabled>📤 Envoyer</button>
+                <button class="btn" onclick="addLocalMessage()" disabled id="localBtn">💾 Message Local</button>
+            </div>
         </div>
     </div>
 
-    <script type="module">
-        // Configuration Firebase - REMPLACEZ par la vôtre !
-        const firebaseConfig = {
+    <!-- Firebase SDK via CDN classique -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+    
+    <script>
+        // Variables globales
+        var currentUser = '';
+        var messages = [];
+        var db = null;
+        var isFirebaseConnected = false;
+        var unsubscribe = null;
+        var statusEl = document.getElementById('status');
+        
+        // Configuration Firebase
+        var firebaseConfig = {
             apiKey: "AIzaSyDORaTAEOpBm7M3mEl6_EOqH1KXYcN65-I",
             authDomain: "chat-liseuse.firebaseapp.com",
             projectId: "chat-liseuse",
@@ -249,185 +259,338 @@
             messagingSenderId: "371526134080",
             appId: "1:371526134080:web:93ff9ea4b1224a84beb2a5"
         };
-
-        console.log("🚀 Démarrage du chat...");
-
-        // Import Firebase
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
-
-        // Variables globales
-        let app, db;
-        let currentUser = '';
-        let unsubscribe = null;
-
-        // Initialisation Firebase
-        async function initFirebase() {
+        
+        // Initialisation
+        function init() {
+            console.log("🚀 Démarrage du chat compatible liseuse...");
+            
+            // Charger l'utilisateur sauvegardé
             try {
-                console.log("📡 Connexion à Firebase...");
-                app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                
-                document.getElementById('connectionStatus').textContent = "✅ Connecté à Firebase";
-                document.getElementById('connectionStatus').className = "status-indicator connected";
-                console.log("✅ Firebase connecté avec succès !");
-
-                // Charger l'utilisateur sauvegardé
-                const savedUser = localStorage.getItem('currentUser') || '';
+                var savedUser = localStorage.getItem('currentUser') || '';
                 if (savedUser) {
                     document.getElementById('userSelect').value = savedUser;
                     currentUser = savedUser;
                     enableChat();
-                    startListening();
-                } else {
-                    document.getElementById('messages').innerHTML = '<div class="status">Choisissez votre identité pour commencer</div>';
                 }
-
+            } catch (e) {
+                console.warn("localStorage non disponible");
+            }
+            
+            // Charger les messages locaux
+            loadLocalMessages();
+            
+            // Tenter la connexion Firebase
+            setTimeout(function() {
+                initFirebase();
+            }, 1000);
+            
+            // Gérer la touche Entrée
+            document.getElementById('messageInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    sendMessage();
+                }
+            });
+        }
+        
+        // Initialisation Firebase avec gestion d'erreurs robuste
+        function initFirebase() {
+            try {
+                if (typeof firebase === 'undefined') {
+                    throw new Error("Firebase SDK non chargé");
+                }
+                
+                statusEl.textContent = "🔄 Connexion Firebase...";
+                statusEl.className = "status";
+                
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                
+                // Test de connexion simple
+                db.collection('messages').limit(1).get()
+                    .then(function() {
+                        statusEl.textContent = "✅ Firebase connecté - Sync automatique active";
+                        statusEl.className = "status connected";
+                        isFirebaseConnected = true;
+                        startListening();
+                    })
+                    .catch(function(error) {
+                        console.error("Erreur test Firebase:", error);
+                        fallbackMode();
+                    });
+                    
             } catch (error) {
-                console.error("❌ Erreur Firebase:", error);
-                document.getElementById('connectionStatus').textContent = "❌ Erreur de connexion Firebase";
-                document.getElementById('connectionStatus').className = "status-indicator error";
-                document.getElementById('messages').innerHTML = `
-                    <div class="config-needed">
-                        <h3>❌ Erreur Firebase</h3>
-                        <p>Erreur: ${error.message}</p>
-                        <p>Code: ${error.code || 'Inconnu'}</p>
-                    </div>
-                `;
+                console.error("Erreur init Firebase:", error);
+                fallbackMode();
             }
         }
-
-        // Gérer le changement d'utilisateur
-        document.getElementById('userSelect').addEventListener('change', function() {
-            currentUser = this.value;
+        
+        // Mode de secours pour liseuses
+        function fallbackMode() {
+            statusEl.textContent = "📚 Mode Liseuse - Synchronisation manuelle uniquement";
+            statusEl.className = "status fallback";
+            document.getElementById('manualSync').style.display = 'block';
+            isFirebaseConnected = false;
+        }
+        
+        // Écouter les messages en temps réel (si Firebase connecté)
+        function startListening() {
+            if (!db || !isFirebaseConnected) return;
+            
+            try {
+                unsubscribe = db.collection('messages')
+                    .orderBy('timestamp', 'asc')
+                    .onSnapshot(function(snapshot) {
+                        messages = [];
+                        snapshot.forEach(function(doc) {
+                            messages.push({
+                                id: doc.id,
+                                user: doc.data().user,
+                                text: doc.data().text,
+                                timestamp: doc.data().timestamp
+                            });
+                        });
+                        displayMessages();
+                        saveLocalMessages();
+                    }, function(error) {
+                        console.error("Erreur écoute:", error);
+                        fallbackMode();
+                    });
+            } catch (error) {
+                console.error("Erreur startListening:", error);
+                fallbackMode();
+            }
+        }
+        
+        // Changer d'utilisateur
+        function changeUser() {
+            currentUser = document.getElementById('userSelect').value;
             if (currentUser) {
-                localStorage.setItem('currentUser', currentUser);
+                try {
+                    localStorage.setItem('currentUser', currentUser);
+                } catch (e) {
+                    console.warn("Impossible de sauvegarder l'utilisateur");
+                }
                 enableChat();
-                startListening();
+                if (isFirebaseConnected) {
+                    startListening();
+                }
             } else {
                 disableChat();
-                if (unsubscribe) {
-                    unsubscribe();
-                    unsubscribe = null;
-                }
             }
-        });
-
-        // Activer le chat
+        }
+        
+        // Activer/désactiver le chat
         function enableChat() {
             document.getElementById('messageInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
-            document.getElementById('messageInput').focus();
+            document.getElementById('localBtn').disabled = false;
         }
-
-        // Désactiver le chat
+        
         function disableChat() {
             document.getElementById('messageInput').disabled = true;
             document.getElementById('sendBtn').disabled = true;
+            document.getElementById('localBtn').disabled = true;
         }
-
-        // Écouter les messages en temps réel
-        function startListening() {
-            if (!db) return;
-            
-            if (unsubscribe) {
-                unsubscribe();
-            }
-
-            const messagesRef = collection(db, 'messages');
-            const q = query(messagesRef, orderBy('timestamp', 'asc'));
-            
-            unsubscribe = onSnapshot(q, (snapshot) => {
-                const messages = [];
-                snapshot.forEach((doc) => {
-                    messages.push({ id: doc.id, ...doc.data() });
-                });
-                displayMessages(messages);
-            }, (error) => {
-                console.error("❌ Erreur lors de l'écoute:", error);
-                document.getElementById('connectionStatus').textContent = "⚠️ Problème de synchronisation";
-                document.getElementById('connectionStatus').className = "status-indicator error";
-            });
-        }
-
+        
         // Envoyer un message
-        window.sendMessage = async function() {
-            const messageInput = document.getElementById('messageInput');
-            const messageText = messageInput.value.trim();
+        function sendMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var messageText = messageInput.value.trim();
             
-            if (messageText && currentUser && db) {
-                try {
-                    await addDoc(collection(db, 'messages'), {
-                        user: currentUser,
-                        text: messageText,
-                        timestamp: new Date()
+            if (!messageText || !currentUser) return;
+            
+            var message = {
+                user: currentUser,
+                text: messageText,
+                timestamp: new Date()
+            };
+            
+            if (isFirebaseConnected && db) {
+                // Envoyer via Firebase
+                db.collection('messages').add(message)
+                    .then(function() {
+                        console.log("✅ Message envoyé via Firebase");
+                        messageInput.value = '';
+                    })
+                    .catch(function(error) {
+                        console.error("❌ Erreur envoi Firebase:", error);
+                        // Ajouter en local en cas d'erreur
+                        addMessageLocally(message);
+                        messageInput.value = '';
                     });
-                    
-                    messageInput.value = '';
-                    console.log("✅ Message envoyé !");
-                    
-                } catch (error) {
-                    console.error("❌ Erreur lors de l'envoi:", error);
-                    alert("Erreur lors de l'envoi du message. Vérifiez votre connexion.");
-                }
+            } else {
+                // Mode local seulement
+                addMessageLocally(message);
+                messageInput.value = '';
             }
-        };
-
+        }
+        
+        // Ajouter un message localement
+        function addMessageLocally(message) {
+            message.id = 'local_' + Date.now();
+            message.local = true;
+            messages.push(message);
+            displayMessages();
+            saveLocalMessages();
+        }
+        
+        // Message local explicite
+        function addLocalMessage() {
+            var messageInput = document.getElementById('messageInput');
+            var messageText = messageInput.value.trim();
+            
+            if (!messageText || !currentUser) return;
+            
+            addMessageLocally({
+                user: currentUser,
+                text: messageText + " [LOCAL]",
+                timestamp: new Date()
+            });
+            
+            messageInput.value = '';
+        }
+        
         // Afficher les messages
-        function displayMessages(messages) {
-            const messagesContainer = document.getElementById('messages');
+        function displayMessages() {
+            var messagesContainer = document.getElementById('messages');
             
             if (messages.length === 0) {
-                messagesContainer.innerHTML = '<div class="status">Aucun message pour le moment</div>';
+                messagesContainer.innerHTML = '<div style="text-align: center; color: #666; font-style: italic;">Aucun message</div>';
                 return;
             }
             
-            messagesContainer.innerHTML = messages.map(message => {
-                const date = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
-                const userName = message.user === 'user1' ? 'Yosra' : 'Nathan';
-                return `
-                    <div class="message ${message.user}">
-                        <div class="message-sender">${userName}</div>
-                        <div>${message.text}</div>
-                        <div class="message-info">${date.toLocaleString('fr-FR')}</div>
-                    </div>
-                `;
-            }).join('');
+            var html = '';
+            for (var i = 0; i < messages.length; i++) {
+                var message = messages[i];
+                var date = message.timestamp;
+                if (date && date.toDate) {
+                    date = date.toDate();
+                } else if (typeof date === 'string') {
+                    date = new Date(date);
+                }
+                
+                var userName = message.user === 'user1' ? 'Yosra' : 'Nathan';
+                var localIndicator = message.local ? ' 💾' : '';
+                
+                html += '<div class="message ' + message.user + '">';
+                html += '<div class="message-header">' + userName + localIndicator + '</div>';
+                html += '<div class="message-text">' + message.text + '</div>';
+                html += '<div class="message-time">' + (date ? date.toLocaleString('fr-FR') : 'Date inconnue') + '</div>';
+                html += '</div>';
+            }
             
-            // Auto-scroll vers le bas
+            messagesContainer.innerHTML = html;
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-
-        // Effacer tous les messages
-        window.clearAllMessages = async function() {
-            if (!db) return;
+        
+        // Actualisation manuelle
+        function manualRefresh() {
+            if (!db) {
+                initFirebase();
+                return;
+            }
             
-            if (confirm('Êtes-vous sûr de vouloir effacer tous les messages pour vous deux ?')) {
-                try {
-                    const messagesRef = collection(db, 'messages');
-                    const snapshot = await getDocs(messagesRef);
-                    
-                    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
-                    await Promise.all(deletePromises);
-                    
-                    console.log("✅ Messages supprimés !");
-                    
-                } catch (error) {
-                    console.error("❌ Erreur lors de la suppression:", error);
-                    alert("Erreur lors de la suppression. Vérifiez votre connexion.");
+            statusEl.textContent = "🔄 Actualisation manuelle...";
+            statusEl.className = "status";
+            
+            db.collection('messages').orderBy('timestamp', 'asc').get()
+                .then(function(snapshot) {
+                    messages = [];
+                    snapshot.forEach(function(doc) {
+                        messages.push({
+                            id: doc.id,
+                            user: doc.data().user,
+                            text: doc.data().text,
+                            timestamp: doc.data().timestamp
+                        });
+                    });
+                    displayMessages();
+                    saveLocalMessages();
+                    statusEl.textContent = "✅ Messages actualisés manuellement";
+                    statusEl.className = "status connected";
+                })
+                .catch(function(error) {
+                    console.error("Erreur actualisation:", error);
+                    statusEl.textContent = "❌ Erreur lors de l'actualisation";
+                    statusEl.className = "status error";
+                });
+        }
+        
+        // Test de connexion
+        function checkConnection() {
+            statusEl.textContent = "🔍 Test de connexion...";
+            statusEl.className = "status";
+            
+            if (!db) {
+                statusEl.textContent = "❌ Firebase non initialisé";
+                statusEl.className = "status error";
+                return;
+            }
+            
+            db.collection('messages').limit(1).get()
+                .then(function() {
+                    statusEl.textContent = "✅ Connexion Firebase OK";
+                    statusEl.className = "status connected";
+                    isFirebaseConnected = true;
+                })
+                .catch(function(error) {
+                    statusEl.textContent = "❌ Connexion Firebase échouée";
+                    statusEl.className = "status error";
+                    isFirebaseConnected = false;
+                });
+        }
+        
+        // Effacer les messages
+        function clearMessages() {
+            if (!confirm('Effacer tous les messages ?')) return;
+            
+            if (isFirebaseConnected && db) {
+                db.collection('messages').get()
+                    .then(function(snapshot) {
+                        var batch = db.batch();
+                        snapshot.forEach(function(doc) {
+                            batch.delete(doc.ref);
+                        });
+                        return batch.commit();
+                    })
+                    .then(function() {
+                        console.log("Messages effacés de Firebase");
+                    })
+                    .catch(function(error) {
+                        console.error("Erreur effacement Firebase:", error);
+                    });
+            }
+            
+            // Effacer localement aussi
+            messages = [];
+            displayMessages();
+            saveLocalMessages();
+        }
+        
+        // Sauvegarde locale
+        function saveLocalMessages() {
+            try {
+                localStorage.setItem('localMessages', JSON.stringify(messages));
+            } catch (e) {
+                console.warn("Impossible de sauvegarder localement");
+            }
+        }
+        
+        function loadLocalMessages() {
+            try {
+                var saved = localStorage.getItem('localMessages');
+                if (saved) {
+                    messages = JSON.parse(saved);
+                    displayMessages();
                 }
+            } catch (e) {
+                console.warn("Impossible de charger les messages locaux");
+                messages = [];
             }
-        };
-
-        // Gérer la touche Entrée
-        document.getElementById('messageInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                sendMessage();
-            }
-        });
-
-        // Initialiser Firebase au chargement
-        initFirebase();
+        }
+        
+        // Démarrage
+        window.onload = init;
     </script>
 </body>
 </html>
