@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Liseuse - Ultra Compatible</title>
+    <title>Chat Liseuse - Synchronisé</title>
     <style>
         * {
             margin: 0;
@@ -15,297 +15,233 @@
             font-family: 'Times New Roman', serif;
             background-color: #f5f5dc;
             color: #333;
-            padding: 10px;
-            line-height: 1.4;
-        }
-        
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: white;
-            border: 2px solid #333;
-            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
         
         .header {
-            text-align: center;
             background-color: #2c3e50;
             color: white;
             padding: 15px;
-            margin: -20px -20px 20px -20px;
+            text-align: center;
             font-size: 18px;
             font-weight: bold;
         }
         
-        .status {
+        .status-indicator {
             background-color: #34495e;
             color: white;
-            padding: 10px;
+            padding: 8px;
             text-align: center;
-            margin-bottom: 20px;
             font-size: 14px;
         }
         
-        .status.connected { background-color: #27ae60; }
-        .status.error { background-color: #e74c3c; }
-        .status.fallback { background-color: #f39c12; }
+        .status-indicator.connected {
+            background-color: #27ae60;
+        }
+        
+        .status-indicator.error {
+            background-color: #e74c3c;
+        }
+        
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
         
         .user-selection {
-            background-color: #ecf0f1;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 1px solid #bdc3c7;
+            padding: 20px;
             text-align: center;
+            background-color: #ecf0f1;
+            border-bottom: 2px solid #bdc3c7;
         }
         
         .user-selection label {
             font-size: 16px;
             margin-right: 10px;
-            font-weight: bold;
         }
         
         .user-selection select {
-            padding: 8px;
+            padding: 8px 15px;
             font-size: 16px;
-            border: 1px solid #333;
+            border: 2px solid #3498db;
+            border-radius: 5px;
+            background: white;
         }
         
         .messages {
-            border: 2px solid #333;
-            min-height: 300px;
-            max-height: 400px;
+            flex: 1;
+            padding: 20px;
             overflow-y: auto;
-            padding: 15px;
-            margin-bottom: 20px;
-            background-color: #fafafa;
+            min-height: 300px;
+            max-height: 60vh;
         }
         
         .message {
             margin-bottom: 15px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            background-color: white;
+            padding: 12px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            word-wrap: break-word;
+            line-height: 1.4;
+            animation: fadeIn 0.3s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .message.user1 {
-            border-left: 4px solid #3498db;
-            margin-left: 20px;
+            background-color: #3498db;
+            color: white;
+            margin-left: auto;
+            text-align: right;
         }
         
         .message.user2 {
-            border-left: 4px solid #e74c3c;
-            margin-right: 20px;
+            background-color: #e74c3c;
+            color: white;
+            margin-right: auto;
+            text-align: left;
         }
         
-        .message.pending {
-            border-left: 4px solid #f39c12;
-            background-color: #fff3cd;
-        }
-        
-        .message-header {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 14px;
-        }
-        
-        .message-text {
-            margin-bottom: 5px;
-        }
-        
-        .message-time {
+        .message-info {
             font-size: 12px;
-            color: #666;
-            font-style: italic;
+            opacity: 0.8;
+            margin-top: 5px;
         }
         
-        .input-area {
+        .message-sender {
+            font-size: 12px;
+            font-weight: bold;
+            opacity: 0.9;
+            margin-bottom: 3px;
+        }
+        
+        .input-container {
+            padding: 20px;
             background-color: #ecf0f1;
-            padding: 15px;
-            border: 1px solid #bdc3c7;
+            border-top: 2px solid #bdc3c7;
+            display: flex;
+            gap: 10px;
         }
         
-        .input-row {
-            margin-bottom: 10px;
-        }
-        
-        .input-row input[type="text"] {
-            width: 100%;
-            padding: 10px;
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
             font-size: 16px;
-            border: 1px solid #333;
+            border: 2px solid #3498db;
+            border-radius: 25px;
+            outline: none;
+            background: white;
         }
         
-        .button-row {
-            text-align: center;
-        }
-        
-        .btn {
-            padding: 10px 20px;
+        .send-btn {
+            padding: 12px 25px;
             font-size: 16px;
-            border: 1px solid #333;
             background-color: #27ae60;
             color: white;
+            border: none;
+            border-radius: 25px;
             cursor: pointer;
-            margin: 0 5px;
+            transition: background-color 0.3s;
         }
         
-        .btn:hover {
+        .send-btn:hover {
             background-color: #229954;
         }
         
-        .btn.danger {
-            background-color: #e74c3c;
-        }
-        
-        .btn.orange {
-            background-color: #f39c12;
-        }
-        
-        .btn:disabled {
+        .send-btn:disabled {
             background-color: #95a5a6;
             cursor: not-allowed;
         }
         
-        .sync-area {
-            background-color: #e8f4fd;
-            border: 1px solid #3498db;
-            padding: 15px;
-            margin-bottom: 20px;
-        }
-        
-        .sync-area h3 {
-            margin-bottom: 10px;
-            text-align: center;
-        }
-        
-        .sync-buttons {
-            text-align: center;
-            margin-bottom: 15px;
-        }
-        
-        .sync-buttons button {
-            margin: 5px;
-        }
-        
-        .pending-messages {
-            background-color: #fff3cd;
-            border: 1px solid #ffeaa7;
-            padding: 10px;
-            margin-bottom: 10px;
-            border-radius: 5px;
-        }
-        
-        .help {
-            background-color: #d1ecf1;
-            border: 1px solid #bee5eb;
-            padding: 15px;
-            margin-bottom: 20px;
+        .clear-btn {
+            padding: 8px 15px;
             font-size: 14px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            margin-left: 10px;
         }
         
-        .help h3 {
-            margin-bottom: 10px;
-            color: #0c5460;
+        .clear-btn:hover {
+            background-color: #c0392b;
         }
         
-        .url-info {
-            background-color: #f8d7da;
-            border: 1px solid #f5c6cb;
+        .status {
+            text-align: center;
             padding: 10px;
-            margin-bottom: 15px;
-            font-size: 12px;
+            font-style: italic;
+            color: #7f8c8d;
         }
         
-        .copy-url {
-            font-family: monospace;
-            background-color: #f8f9fa;
-            padding: 5px;
-            border: 1px solid #dee2e6;
-            word-break: break-all;
-            margin: 5px 0;
+        .config-needed {
+            background-color: #f39c12;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        
+        @media (max-width: 600px) {
+            .message {
+                max-width: 90%;
+            }
+            
+            .input-container {
+                flex-direction: column;
+            }
+            
+            .send-btn {
+                align-self: stretch;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            💕 Chat Liseuse - Mode Hybride 💕
-        </div>
-        
-        <div class="status" id="status">
-            🔄 Initialisation...
-        </div>
-        
-        <div class="help">
-            <h3>📱 Instructions d'utilisation</h3>
-            <p><strong>Mode Liseuse :</strong> Vos messages sont stockés temporairement. Utilisez "Envoyer vers Firebase" pour les synchroniser.</p>
-            <p><strong>Mode Normal :</strong> Synchronisation automatique activée.</p>
-        </div>
-        
-        <div class="url-info" id="urlInfo">
-            <strong>💡 Astuce :</strong> Copiez cette URL et ouvrez-la sur votre autre appareil pour voir les messages en temps réel.
-            <div class="copy-url" id="currentUrl"></div>
-        </div>
-        
+    <div class="header">
+        💕 Chat Liseuse - Synchronisé 💕
+    </div>
+    
+    <div class="status-indicator" id="connectionStatus">
+        🔄 Connexion en cours...
+    </div>
+    
+    <div class="chat-container">
         <div class="user-selection">
             <label for="userSelect">Je suis :</label>
-            <select id="userSelect" onchange="changeUser()">
+            <select id="userSelect">
                 <option value="">Choisir...</option>
                 <option value="user1">Yosra</option>
                 <option value="user2">Nathan</option>
             </select>
-            <button class="btn danger" onclick="clearAllMessages()" style="margin-left: 20px;">🗑️ Tout Effacer</button>
-        </div>
-        
-        <div class="sync-area">
-            <h3>🔄 Synchronisation</h3>
-            <div class="sync-buttons">
-                <button class="btn" onclick="refreshMessages()">⬇️ Récupérer Messages</button>
-                <button class="btn orange" onclick="sendPendingMessages()" id="sendPendingBtn" disabled>⬆️ Envoyer mes Messages</button>
-                <button class="btn" onclick="testConnection()">🔍 Test Connexion</button>
-            </div>
-            <div id="pendingInfo" style="display: none;">
-                <div class="pending-messages">
-                    <strong>📝 Messages en attente d'envoi :</strong>
-                    <div id="pendingList"></div>
-                </div>
-            </div>
+            <button class="clear-btn" onclick="clearAllMessages()">Effacer tout</button>
         </div>
         
         <div class="messages" id="messages">
-            <div style="text-align: center; color: #666; font-style: italic;">
-                Choisissez votre identité pour commencer
-            </div>
+            <div class="status">Connexion à Firebase en cours...</div>
         </div>
         
-        <div class="input-area">
-            <div class="input-row">
-                <input type="text" id="messageInput" placeholder="Tapez votre message ici..." disabled>
-            </div>
-            <div class="button-row">
-                <button class="btn" id="sendBtn" onclick="sendMessage()" disabled>💬 Écrire Message</button>
-                <button class="btn orange" onclick="sendMessageDirect()" disabled id="directBtn">🚀 Écrire & Envoyer</button>
-            </div>
+        <div class="input-container">
+            <input type="text" class="message-input" id="messageInput" placeholder="Tapez votre message..." disabled>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>Envoyer</button>
         </div>
     </div>
 
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-    
-    <script>
-        // Variables globales
-        var currentUser = '';
-        var messages = [];
-        var pendingMessages = [];
-        var db = null;
-        var isFirebaseConnected = false;
-        var unsubscribe = null;
-        var statusEl = document.getElementById('status');
-        var isEReaderMode = false;
-        
-        // Configuration Firebase
-        var firebaseConfig = {
+    <script type="module">
+        // Configuration Firebase - REMPLACEZ par la vôtre !
+        const firebaseConfig = {
             apiKey: "AIzaSyDORaTAEOpBm7M3mEl6_EOqH1KXYcN65-I",
             authDomain: "chat-liseuse.firebaseapp.com",
             projectId: "chat-liseuse",
@@ -313,428 +249,185 @@
             messagingSenderId: "371526134080",
             appId: "1:371526134080:web:93ff9ea4b1224a84beb2a5"
         };
-        
-        // Initialisation
-        function init() {
-            console.log("🚀 Démarrage du chat hybride...");
-            
-            // Afficher l'URL actuelle
-            document.getElementById('currentUrl').textContent = window.location.href;
-            
-            // Détecter si on est probablement sur une liseuse
-            detectEReader();
-            
-            // Charger les données locales
-            loadLocalData();
-            
-            // Tenter la connexion Firebase
-            setTimeout(function() {
-                initFirebase();
-            }, 1000);
-            
-            // Gérer la touche Entrée
-            document.getElementById('messageInput').addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' || e.keyCode === 13) {
-                    if (isEReaderMode) {
-                        sendMessage();
-                    } else {
-                        sendMessageDirect();
-                    }
-                }
-            });
-        }
-        
-        // Détecter si on est sur une liseuse
-        function detectEReader() {
-            var userAgent = navigator.userAgent.toLowerCase();
-            isEReaderMode = userAgent.includes('kindle') || 
-                           userAgent.includes('kobo') || 
-                           userAgent.includes('pocketbook') ||
-                           userAgent.includes('webkit') && !userAgent.includes('chrome');
-            
-            if (isEReaderMode) {
-                statusEl.textContent = "📚 Mode Liseuse détecté - Synchronisation manuelle";
-                statusEl.className = "status fallback";
-            }
-        }
-        
+
+        console.log("🚀 Démarrage du chat...");
+
+        // Import Firebase
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js';
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, deleteDoc, getDocs } from 'https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js';
+
+        // Variables globales
+        let app, db;
+        let currentUser = '';
+        let unsubscribe = null;
+
         // Initialisation Firebase
-        function initFirebase() {
+        async function initFirebase() {
             try {
-                if (typeof firebase === 'undefined') {
-                    throw new Error("Firebase SDK non chargé");
+                console.log("📡 Connexion à Firebase...");
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                
+                document.getElementById('connectionStatus').textContent = "✅ Connecté à Firebase";
+                document.getElementById('connectionStatus').className = "status-indicator connected";
+                console.log("✅ Firebase connecté avec succès !");
+
+                // Charger l'utilisateur sauvegardé
+                const savedUser = localStorage.getItem('currentUser') || '';
+                if (savedUser) {
+                    document.getElementById('userSelect').value = savedUser;
+                    currentUser = savedUser;
+                    enableChat();
+                    startListening();
+                } else {
+                    document.getElementById('messages').innerHTML = '<div class="status">Choisissez votre identité pour commencer</div>';
                 }
-                
-                firebase.initializeApp(firebaseConfig);
-                db = firebase.firestore();
-                
-                // Test de connexion
-                testConnection();
-                
+
             } catch (error) {
-                console.error("Erreur init Firebase:", error);
-                statusEl.textContent = "📚 Mode Hors-ligne - Messages locaux uniquement";
-                statusEl.className = "status error";
+                console.error("❌ Erreur Firebase:", error);
+                document.getElementById('connectionStatus').textContent = "❌ Erreur de connexion Firebase";
+                document.getElementById('connectionStatus').className = "status-indicator error";
+                document.getElementById('messages').innerHTML = `
+                    <div class="config-needed">
+                        <h3>❌ Erreur Firebase</h3>
+                        <p>Erreur: ${error.message}</p>
+                        <p>Code: ${error.code || 'Inconnu'}</p>
+                    </div>
+                `;
             }
         }
-        
-        // Test de connexion Firebase
-        function testConnection() {
-            if (!db) {
-                statusEl.textContent = "❌ Firebase non disponible";
-                statusEl.className = "status error";
-                return;
-            }
-            
-            statusEl.textContent = "🔍 Test de connexion...";
-            statusEl.className = "status";
-            
-            db.collection('messages').limit(1).get()
-                .then(function() {
-                    isFirebaseConnected = true;
-                    if (!isEReaderMode) {
-                        statusEl.textContent = "✅ Synchronisation automatique active";
-                        statusEl.className = "status connected";
-                        startAutoSync();
-                    } else {
-                        statusEl.textContent = "📚 Connexion OK - Mode manuel actif";
-                        statusEl.className = "status fallback";
-                    }
-                })
-                .catch(function(error) {
-                    console.error("Erreur test Firebase:", error);
-                    isFirebaseConnected = false;
-                    statusEl.textContent = "❌ Connexion échouée - Mode local uniquement";
-                    statusEl.className = "status error";
-                });
-        }
-        
-        // Démarrer la synchronisation automatique
-        function startAutoSync() {
-            if (!db || !isFirebaseConnected || isEReaderMode) return;
-            
-            try {
-                if (unsubscribe) unsubscribe();
-                
-                unsubscribe = db.collection('messages')
-                    .orderBy('timestamp', 'asc')
-                    .onSnapshot(function(snapshot) {
-                        messages = [];
-                        snapshot.forEach(function(doc) {
-                            messages.push({
-                                id: doc.id,
-                                user: doc.data().user,
-                                text: doc.data().text,
-                                timestamp: doc.data().timestamp
-                            });
-                        });
-                        displayMessages();
-                        saveLocalData();
-                    });
-            } catch (error) {
-                console.error("Erreur auto-sync:", error);
-            }
-        }
-        
-        // Changer d'utilisateur
-        function changeUser() {
-            currentUser = document.getElementById('userSelect').value;
+
+        // Gérer le changement d'utilisateur
+        document.getElementById('userSelect').addEventListener('change', function() {
+            currentUser = this.value;
             if (currentUser) {
-                saveLocalData();
+                localStorage.setItem('currentUser', currentUser);
                 enableChat();
-                if (isFirebaseConnected && !isEReaderMode) {
-                    startAutoSync();
-                }
-                displayMessages();
+                startListening();
             } else {
                 disableChat();
+                if (unsubscribe) {
+                    unsubscribe();
+                    unsubscribe = null;
+                }
             }
-        }
-        
-        // Activer/désactiver le chat
+        });
+
+        // Activer le chat
         function enableChat() {
             document.getElementById('messageInput').disabled = false;
             document.getElementById('sendBtn').disabled = false;
-            document.getElementById('directBtn').disabled = false;
-            updatePendingDisplay();
+            document.getElementById('messageInput').focus();
         }
-        
+
+        // Désactiver le chat
         function disableChat() {
             document.getElementById('messageInput').disabled = true;
             document.getElementById('sendBtn').disabled = true;
-            document.getElementById('directBtn').disabled = true;
-            document.getElementById('sendPendingBtn').disabled = true;
         }
-        
-        // Envoyer un message (mode liseuse - stockage local)
-        function sendMessage() {
-            var messageInput = document.getElementById('messageInput');
-            var messageText = messageInput.value.trim();
+
+        // Écouter les messages en temps réel
+        function startListening() {
+            if (!db) return;
             
-            if (!messageText || !currentUser) return;
-            
-            var message = {
-                id: 'pending_' + Date.now(),
-                user: currentUser,
-                text: messageText,
-                timestamp: new Date(),
-                pending: true
-            };
-            
-            pendingMessages.push(message);
-            messages.push(message);
-            
-            displayMessages();
-            updatePendingDisplay();
-            saveLocalData();
-            
-            messageInput.value = '';
-            
-            statusEl.textContent = "📝 Message ajouté localement - Cliquez 'Envoyer mes Messages'";
-            statusEl.className = "status fallback";
-        }
-        
-        // Envoyer un message directement
-        function sendMessageDirect() {
-            var messageInput = document.getElementById('messageInput');
-            var messageText = messageInput.value.trim();
-            
-            if (!messageText || !currentUser) return;
-            
-            if (isFirebaseConnected && db) {
-                var message = {
-                    user: currentUser,
-                    text: messageText,
-                    timestamp: new Date()
-                };
-                
-                db.collection('messages').add(message)
-                    .then(function() {
-                        messageInput.value = '';
-                        statusEl.textContent = "✅ Message envoyé directement";
-                        statusEl.className = "status connected";
-                    })
-                    .catch(function(error) {
-                        console.error("Erreur envoi direct:", error);
-                        // Fallback en mode local
-                        sendMessage();
-                    });
-            } else {
-                // Pas de connexion, utiliser le mode local
-                sendMessage();
+            if (unsubscribe) {
+                unsubscribe();
             }
-        }
-        
-        // Envoyer tous les messages en attente
-        function sendPendingMessages() {
-            if (!isFirebaseConnected || !db || pendingMessages.length === 0) return;
+
+            const messagesRef = collection(db, 'messages');
+            const q = query(messagesRef, orderBy('timestamp', 'asc'));
             
-            statusEl.textContent = "📤 Envoi des messages en attente...";
-            statusEl.className = "status";
-            
-            var promises = [];
-            var messagesToSend = pendingMessages.slice(); // Copie
-            
-            for (var i = 0; i < messagesToSend.length; i++) {
-                var msg = messagesToSend[i];
-                var cleanMessage = {
-                    user: msg.user,
-                    text: msg.text,
-                    timestamp: msg.timestamp
-                };
-                promises.push(db.collection('messages').add(cleanMessage));
-            }
-            
-            Promise.all(promises)
-                .then(function() {
-                    // Supprimer les messages pending de la liste locale
-                    messages = messages.filter(function(m) { return !m.pending; });
-                    pendingMessages = [];
-                    
-                    displayMessages();
-                    updatePendingDisplay();
-                    saveLocalData();
-                    
-                    statusEl.textContent = "✅ Tous les messages envoyés !";
-                    statusEl.className = "status connected";
-                    
-                    // Actualiser pour voir tous les messages
-                    setTimeout(refreshMessages, 1000);
-                })
-                .catch(function(error) {
-                    console.error("Erreur envoi groupé:", error);
-                    statusEl.textContent = "❌ Erreur lors de l'envoi";
-                    statusEl.className = "status error";
+            unsubscribe = onSnapshot(q, (snapshot) => {
+                const messages = [];
+                snapshot.forEach((doc) => {
+                    messages.push({ id: doc.id, ...doc.data() });
                 });
+                displayMessages(messages);
+            }, (error) => {
+                console.error("❌ Erreur lors de l'écoute:", error);
+                document.getElementById('connectionStatus').textContent = "⚠️ Problème de synchronisation";
+                document.getElementById('connectionStatus').className = "status-indicator error";
+            });
         }
-        
-        // Actualiser les messages depuis Firebase
-        function refreshMessages() {
-            if (!isFirebaseConnected || !db) {
-                testConnection();
-                return;
-            }
+
+        // Envoyer un message
+        window.sendMessage = async function() {
+            const messageInput = document.getElementById('messageInput');
+            const messageText = messageInput.value.trim();
             
-            statusEl.textContent = "⬇️ Actualisation...";
-            statusEl.className = "status";
-            
-            db.collection('messages').orderBy('timestamp', 'asc').get()
-                .then(function(snapshot) {
-                    var firebaseMessages = [];
-                    snapshot.forEach(function(doc) {
-                        firebaseMessages.push({
-                            id: doc.id,
-                            user: doc.data().user,
-                            text: doc.data().text,
-                            timestamp: doc.data().timestamp
-                        });
+            if (messageText && currentUser && db) {
+                try {
+                    await addDoc(collection(db, 'messages'), {
+                        user: currentUser,
+                        text: messageText,
+                        timestamp: new Date()
                     });
                     
-                    // Merger avec les messages pending
-                    messages = firebaseMessages.concat(pendingMessages);
+                    messageInput.value = '';
+                    console.log("✅ Message envoyé !");
                     
-                    displayMessages();
-                    saveLocalData();
-                    
-                    statusEl.textContent = "✅ Messages actualisés (" + firebaseMessages.length + " reçus)";
-                    statusEl.className = "status connected";
-                })
-                .catch(function(error) {
-                    console.error("Erreur actualisation:", error);
-                    statusEl.textContent = "❌ Erreur lors de l'actualisation";
-                    statusEl.className = "status error";
-                });
-        }
-        
+                } catch (error) {
+                    console.error("❌ Erreur lors de l'envoi:", error);
+                    alert("Erreur lors de l'envoi du message. Vérifiez votre connexion.");
+                }
+            }
+        };
+
         // Afficher les messages
-        function displayMessages() {
-            var messagesContainer = document.getElementById('messages');
+        function displayMessages(messages) {
+            const messagesContainer = document.getElementById('messages');
             
             if (messages.length === 0) {
-                messagesContainer.innerHTML = '<div style="text-align: center; color: #666; font-style: italic;">Aucun message</div>';
+                messagesContainer.innerHTML = '<div class="status">Aucun message pour le moment</div>';
                 return;
             }
             
-            var html = '';
-            for (var i = 0; i < messages.length; i++) {
-                var message = messages[i];
-                var date = message.timestamp;
-                if (date && date.toDate) {
-                    date = date.toDate();
-                } else if (typeof date === 'string') {
-                    date = new Date(date);
-                }
-                
-                var userName = message.user === 'user1' ? 'Yosra' : 'Nathan';
-                var pendingClass = message.pending ? ' pending' : '';
-                var pendingIndicator = message.pending ? ' 📝' : '';
-                
-                html += '<div class="message ' + message.user + pendingClass + '">';
-                html += '<div class="message-header">' + userName + pendingIndicator + '</div>';
-                html += '<div class="message-text">' + message.text + '</div>';
-                html += '<div class="message-time">' + (date ? date.toLocaleString('fr-FR') : 'Date inconnue') + '</div>';
-                html += '</div>';
-            }
+            messagesContainer.innerHTML = messages.map(message => {
+                const date = message.timestamp?.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                const userName = message.user === 'user1' ? 'Yosra' : 'Nathan';
+                return `
+                    <div class="message ${message.user}">
+                        <div class="message-sender">${userName}</div>
+                        <div>${message.text}</div>
+                        <div class="message-info">${date.toLocaleString('fr-FR')}</div>
+                    </div>
+                `;
+            }).join('');
             
-            messagesContainer.innerHTML = html;
+            // Auto-scroll vers le bas
             messagesContainer.scrollTop = messagesContainer.scrollHeight;
         }
-        
-        // Mettre à jour l'affichage des messages en attente
-        function updatePendingDisplay() {
-            var pendingInfo = document.getElementById('pendingInfo');
-            var pendingList = document.getElementById('pendingList');
-            var sendPendingBtn = document.getElementById('sendPendingBtn');
-            
-            if (pendingMessages.length > 0) {
-                pendingInfo.style.display = 'block';
-                sendPendingBtn.disabled = false;
-                
-                var html = '';
-                for (var i = 0; i < pendingMessages.length; i++) {
-                    var msg = pendingMessages[i];
-                    html += '<div>• ' + msg.text.substring(0, 50) + (msg.text.length > 50 ? '...' : '') + '</div>';
-                }
-                pendingList.innerHTML = html;
-            } else {
-                pendingInfo.style.display = 'none';
-                sendPendingBtn.disabled = true;
-            }
-        }
-        
+
         // Effacer tous les messages
-        function clearAllMessages() {
-            if (!confirm('Effacer tous les messages (locaux ET Firebase) ?')) return;
+        window.clearAllMessages = async function() {
+            if (!db) return;
             
-            // Effacer Firebase
-            if (isFirebaseConnected && db) {
-                db.collection('messages').get()
-                    .then(function(snapshot) {
-                        var batch = db.batch();
-                        snapshot.forEach(function(doc) {
-                            batch.delete(doc.ref);
-                        });
-                        return batch.commit();
-                    })
-                    .then(function() {
-                        console.log("Messages Firebase effacés");
-                    })
-                    .catch(function(error) {
-                        console.error("Erreur effacement Firebase:", error);
-                    });
-            }
-            
-            // Effacer localement
-            messages = [];
-            pendingMessages = [];
-            displayMessages();
-            updatePendingDisplay();
-            saveLocalData();
-            
-            statusEl.textContent = "🗑️ Tous les messages effacés";
-            statusEl.className = "status";
-        }
-        
-        // Sauvegarde/chargement local
-        function saveLocalData() {
-            try {
-                var data = {
-                    currentUser: currentUser,
-                    messages: messages,
-                    pendingMessages: pendingMessages
-                };
-                localStorage.setItem('chatData', JSON.stringify(data));
-            } catch (e) {
-                console.warn("Impossible de sauvegarder localement");
-            }
-        }
-        
-        function loadLocalData() {
-            try {
-                var saved = localStorage.getItem('chatData');
-                if (saved) {
-                    var data = JSON.parse(saved);
-                    currentUser = data.currentUser || '';
-                    messages = data.messages || [];
-                    pendingMessages = data.pendingMessages || [];
+            if (confirm('Êtes-vous sûr de vouloir effacer tous les messages pour vous deux ?')) {
+                try {
+                    const messagesRef = collection(db, 'messages');
+                    const snapshot = await getDocs(messagesRef);
                     
-                    if (currentUser) {
-                        document.getElementById('userSelect').value = currentUser;
-                        enableChat();
-                    }
+                    const deletePromises = snapshot.docs.map(doc => deleteDoc(doc.ref));
+                    await Promise.all(deletePromises);
                     
-                    displayMessages();
-                    updatePendingDisplay();
+                    console.log("✅ Messages supprimés !");
+                    
+                } catch (error) {
+                    console.error("❌ Erreur lors de la suppression:", error);
+                    alert("Erreur lors de la suppression. Vérifiez votre connexion.");
                 }
-            } catch (e) {
-                console.warn("Impossible de charger les données locales");
-                messages = [];
-                pendingMessages = [];
             }
-        }
-        
-        // Démarrage
-        window.onload = init;
+        };
+
+        // Gérer la touche Entrée
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Initialiser Firebase au chargement
+        initFirebase();
     </script>
 </body>
 </html>
